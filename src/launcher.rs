@@ -370,6 +370,11 @@ pub fn launch(root: &Path, v: &Value, o: &LaunchOpts) -> Res<Child> {
         .current_dir(&game_dir)
         .stdout(Stdio::from(log.try_clone()?))
         .stderr(Stdio::from(log));
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        cmd.creation_flags(0x0800_0000); // kein schwarzes Konsolenfenster
+    }
     cmd.spawn().map_err(|e| {
         format!("Java konnte nicht gestartet werden ('{}'): {e}", o.java).into()
     })
